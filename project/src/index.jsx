@@ -3,13 +3,24 @@ import { createRoot } from 'react-dom/client'
 import HomePage from './pages/homePage'
 import { StrictMode } from 'react'
 import theme from '../theme';
+import { BrowserRouter,Route,Navigate,Routes, Link } from "react-router-dom";
+import SignUpPage from './pages/signUpPage';
+import LoginPage from './pages/loginPage';
 
 const App = () => {
     
   return (
-    <><StrictMode>
+    <>
+      <StrictMode>
         <ChakraProvider theme={theme}>
-          <HomePage />
+          <BrowserRouter>
+                <Routes>
+                  <Route path='/signup' element={<SignUpPage/>}/>
+                  <Route path='/' element={<HomePage />}/>
+                  <Route path='/login' element={<LoginPage />}/>
+                  <Route path='/signup' element={<HomePage />}/>
+                </Routes>
+          </BrowserRouter>
         </ChakraProvider>
       </StrictMode>
     </>
