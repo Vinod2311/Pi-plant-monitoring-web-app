@@ -7,6 +7,12 @@ import { BrowserRouter,Route,Navigate,Routes, Link } from "react-router-dom";
 import SignUpPage from './pages/signUpPage';
 import LoginPage from './pages/loginPage';
 
+const apiCall = () => {
+  fetch('http://localhost:8080').then((data) => {
+      
+  })
+}
+
 const App = () => {
     
   return (
