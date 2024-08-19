@@ -17,6 +17,7 @@ import Nav from "../components/nav";
 import Logo from "../components/logo";
 
 const HomePage = () =>{
+  console.log("Rendering home page")
 
   return(
     <>

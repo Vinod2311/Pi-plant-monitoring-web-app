@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { Button, Flex, GridItem, Stack } from "@chakra-ui/react"
 import { useNavigate } from "react-router-dom";
 

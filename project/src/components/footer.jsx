@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { HStack, Icon, Spacer, Text } from "@chakra-ui/react"
 import { FaGithub } from "react-icons/fa";
 import { FaTwitter } from "react-icons/fa";
