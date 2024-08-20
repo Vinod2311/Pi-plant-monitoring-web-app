@@ -16,10 +16,9 @@ import Footer from "../components/footer";
 import Nav from "../components/navEntry";
 import Logo from "../components/logo";
 import NavMain from "../components/navMain";
-import NavEntry from "../components/navEntry";
 
-const HomePage = () =>{
-  console.log("Rendering home page")
+const AccountPage = () =>{
+  console.log("Rendering Account page")
 
   return(
     <>
@@ -30,30 +29,15 @@ const HomePage = () =>{
                         "main1 main1 main2 main2"
                         "footer footer footer footer"`}>
         <GridItem  area={'nav'}>
-          <NavEntry />
+          <NavMain />
         </GridItem>
         <GridItem area={'logo'}>
           <Logo />
         </GridItem>
         <GridItem area={'main1'}>
-          <Stack direction={"column"} spacing={'50px'}>
-            <Box >
-              <Text  fontFamily='ZCOOL XiaoWei' fontWeight='bold' paddingStart={'120px'} paddingEnd={'40px'} align={'center'} fontSize={'5xl'}>
-                Create Your Own Plant Monitoring System
-              </Text>
-            </Box>
-            <Center>
-              <Button size='lg' colorScheme='blue' w='200px' justifyContent={'center'}>
-                Sign Up
-              </Button>
-            </Center>
-            
-          </Stack>
-        </GridItem>
+          </GridItem>
         <GridItem area={'main2'}>
-          <Box boxShadow={'2xl'} rounded={'2xl'} overflow={'hidden'}>
-            <Image  src='../../landing-page.jpg' alt='landing page image' />
-          </Box>
+          
         </GridItem>
         <GridItem area={'footer'} >
           <Footer />
@@ -66,4 +50,4 @@ const HomePage = () =>{
 };
 
 
-export default HomePage
+export default AccountPage

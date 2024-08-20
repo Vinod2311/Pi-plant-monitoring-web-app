@@ -7,6 +7,9 @@ import { BrowserRouter,Route,Navigate,Routes, Link } from "react-router-dom";
 import SignUpPage from './pages/signUpPage';
 import LoginPage from './pages/loginPage';
 import AboutPage from './pages/aboutPage';
+import DashboardPage from './pages/dashboard';
+import RegisterPiPage from './pages/registerPiPage';
+import AccountPage from './pages/accountPage';
 
 
 
@@ -23,6 +26,9 @@ const App = () => {
                   <Route path='/login' element={<LoginPage />}/>
                   <Route path='/signup' element={<HomePage />}/>
                   <Route path='/about' element={<AboutPage />}/>
+                  <Route path='/registerPi' element={<RegisterPiPage />}/>
+                  <Route path='/account' element={<AccountPage />}/>
+                  <Route path='/dashboard' element={<DashboardPage/>}/>
                 </Routes>
           </BrowserRouter>
         </ChakraProvider>
