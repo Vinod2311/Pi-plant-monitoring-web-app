@@ -14,6 +14,7 @@
     "@fontsource-variable/montserrat": "^5.0.19",
     "@fontsource/zcool-xiaowei": "^5.0.12",
     "abort-controller": "^3.0.0",
+    "file-saver": "^2.0.5",
     "firebase": "^10.13.0",
     "formik": "^2.4.6",
     "react": "^18.3.1",
