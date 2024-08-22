@@ -139,7 +139,7 @@ const RegisterPiPage = () =>{
       const collection = await mongo.db("Raspberry_pi").collection("Devices")
       const userFirebase = auth.currentUser
       await collection.updateOne({"raspberryPiName": sensorPiName}, {$set:{'timings': {firebaseDBFrequency: firebaseDBFrequency, mongoDBFrequency:mongoDBFrequency}}},{ upsert:true})
-      await update(ref(databaseFirebase,'users/' + userFirebase.uid +'/config'),{firebaseDBFrequency: firebaseDBFrequency, mongoDBFrequency:mongoDBFrequency})
+      await update(ref(databaseFirebase,'users/' + userFirebase.uid +'/' + sensorPiName +  '/config'),{firebaseDBFrequency: firebaseDBFrequency, mongoDBFrequency:mongoDBFrequency})
       
       //const resultFirebase = await update(ref(databaseFirebase), { path : {sensors: sensorData}})
       setMongoDBFrequency(1)

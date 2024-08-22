@@ -33,7 +33,7 @@ const DashboardPage = () =>{
         <Grid  h={'100%'} w={'100%'}
          gridTemplateColumns={'1fr 1fr 1fr 1fr'} gridTemplateRows={'400px 1fr 50px'}
          templateAreas={`"logo nav nav nav"
-                        "main1 main1 main2 main2"
+                        "main1 main1 main1 main1"
                         "footer footer footer footer"`}>
         <GridItem  area={'nav'}>
           <NavMain />
@@ -43,9 +43,6 @@ const DashboardPage = () =>{
         </GridItem>
         <GridItem area={'main1'}>
           </GridItem>
-        <GridItem area={'main2'}>
-          
-        </GridItem>
         <GridItem area={'footer'} >
           <Footer />
         </GridItem>
