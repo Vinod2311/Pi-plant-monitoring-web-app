@@ -9,7 +9,7 @@ import React from "react";
 const AboutPage = () => {
 
   return(
-    <Container  background={'#A0A5CB'} maxW={'1400px'} minW={"1500px"} maxH={'1500px'} minHeight={'800px'} paddingInlineEnd={'0'} paddingInlineStart={'0'}>
+    <Container  background={'#A0A5CB'} h='100vh' maxW={'1500px'} minW={"1300px"} minHeight={'800px'} paddingInlineEnd={'0'} paddingInlineStart={'0'}>
         <Grid  h={'100%'} w={'100%'} 
          gridTemplateColumns={'1fr 1fr 1fr 1fr'} gridTemplateRows={'300px 1fr 50px'}
          templateAreas={`"logo nav nav nav"

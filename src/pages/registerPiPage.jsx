@@ -177,9 +177,9 @@ const RegisterPiPage = () =>{
 
   return(
     <>
-    <Container  background={'#A0A5CB'} h='100%' maxW={'1500px'} minW={"1300px"}  minHeight={'800px'} paddingInlineEnd={'0'} paddingInlineStart={'0'}>
+    <Container  background={'#A0A5CB'} h='100vh' maxW={'1500px'} minW={"1300px"}  minHeight={'800px'} paddingInlineEnd={'0'} paddingInlineStart={'0'}>
         <Grid  h={'100%'} w={'100%'}
-         gridTemplateColumns={'1fr 1fr 1fr 1fr'} gridTemplateRows={'400px 1fr 50px'}
+         gridTemplateColumns={'1fr 1fr 1fr 1fr'} gridTemplateRows={'300px 1fr 50px'}
          templateAreas={`"logo nav nav nav"
                         "main1 main1 main1 main2"
                         "footer footer footer footer"`}>
@@ -411,7 +411,7 @@ const RegisterPiPage = () =>{
         
           </VStack>
         </GridItem>
-        <GridItem area={'footer'} paddingTop={'30px'}>
+        <GridItem area={'footer'} >
           <Footer />
         </GridItem>
     </Grid> 
