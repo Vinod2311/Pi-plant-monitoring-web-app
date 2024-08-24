@@ -11,6 +11,7 @@ import AboutPage from './pages/aboutPage';
 import DashboardPage from './pages/dashboard';
 import RegisterPiPage from './pages/registerPiPage';
 import AccountPage from './pages/accountPage';
+import './index.css'
 
 
 
@@ -18,11 +19,11 @@ const App = () => {
     
   return (
     <>
-      <StrictMode>
+      <StrictMode >
         <ChakraProvider >
           <BrowserRouter>
                 <Routes>
-                  <Route path='/signup' element={<SignUpPage/>}/>
+                  <Route path='/signup' element={<SignUpPage />}/>
                   <Route path='/' element={<HomePage />}/>
                   <Route path='/login' element={<LoginPage />}/>
                   <Route path='/signup' element={<HomePage />}/>
@@ -38,4 +39,4 @@ const App = () => {
   )
 }
 
-createRoot(document.getElementById('root')).render(<App />)
+createRoot(document.getElementById('root')).render(<App/>)
