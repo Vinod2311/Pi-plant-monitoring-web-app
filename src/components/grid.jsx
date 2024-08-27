@@ -1,8 +1,8 @@
 import { Button, Card, CardBody, Flex, Heading, Spacer, Text, VStack } from "@chakra-ui/react";
 import React, { useState } from "react";
 import GridLayout from "react-grid-layout";
-import LineChart from "./lineChart";
-import CircularGauge from "./circularGauge"
+import LineChart from "./chartSeries";
+import CircularGauge from "./realTimeGraph"
 import "../../node_modules/react-grid-layout/css/styles.css";
 import "../../node_modules/react-resizable/css/styles.css";
 

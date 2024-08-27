@@ -16,6 +16,8 @@
     "@syncfusion/ej2-react-calendars": "^26.2.11",
     "@syncfusion/ej2-react-charts": "^26.2.10",
     "@syncfusion/ej2-react-circulargauge": "^26.2.10",
+    "@syncfusion/ej2-react-lineargauge": "^26.2.10",
+    "@syncfusion/ej2-react-splitbuttons": "^26.2.10",
     "abort-controller": "^3.0.0",
     "file-saver": "^2.0.5",
     "firebase": "^10.13.0",

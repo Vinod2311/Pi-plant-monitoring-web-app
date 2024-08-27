@@ -23,6 +23,10 @@ import {
   Editable,
   EditablePreview,
   EditableInput,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
 import "@fontsource/zcool-xiaowei";
 import React from "react";
@@ -57,8 +61,8 @@ import { getAuth } from "firebase/auth";
 import ComplexInterfaceGrid from "../components/grid";
 import { IoChevronDownCircleOutline } from "react-icons/io5";
 import styles from "../styles/styles";
-import LineChart from "../components/lineChart";
-import CircularGauge from "../components/circularGauge";
+import ChartSeries from "../components/chartSeries";
+import RealTimeGraph from "../components/realTimeGraph";
 import { useRef } from "react";
 
 const DashboardPage = () => {
@@ -192,10 +196,10 @@ const DashboardPage = () => {
   //setupFirebase()
   //setupMongo()
 
-  const addWidget = () => {
-    const newWidget = { i: `widget ${widgets.length + 1}` };
+  const addWidget = (type) => {
+    const newWidget = { i: `widget ${widgets.length + 1}`, type: type };
     //const newArray = ([...widgets,newWidget])
-    setWidgets([newWidget]);
+    setWidgets([...widgets,newWidget]);
   }
 
   const removeWidget = (i) => {
@@ -342,7 +346,9 @@ const DashboardPage = () => {
                             <div key={item.i} style={{ background: "#009688" }}>
                               <Card>
                                 <CardBody>
-                                  <LineChart  onDelete={ (item) => removeWidget(item.i)}/>
+                                  {(item.type == "chartSeries") ? (
+                                  <ChartSeries  onDelete={ () => removeWidget(item.i)}/>)
+                                  :(<RealTimeGraph onDelete={ () => removeWidget(item.i)}/>)}
                                 </CardBody>
                               </Card>
                             </div>)
@@ -353,13 +359,22 @@ const DashboardPage = () => {
                           </Card>
                         )}
                       </SimpleGrid>
-                      <Button
+                      <Menu>
+                      <MenuButton
+                      as={Button}
                         margin={"30px"}
                         colorScheme="blue"
-                        onClick={() => addWidget()}
+                        
                       >
                         Add
-                      </Button>
+                      </MenuButton>
+                      <MenuList>
+                        <MenuItem onClick={() => addWidget('chartSeries')}>
+                        Historical chart</MenuItem>
+                        <MenuItem onClick={() => addWidget('realTimeGraph')}>
+                        Real time graph</MenuItem>
+                      </MenuList>
+                      </Menu>
                     </Box>
                   </Flex>
                 </>

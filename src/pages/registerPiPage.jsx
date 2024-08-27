@@ -24,7 +24,7 @@ import NavMain from "../components/navMain";
 
 
 const RegisterPiPage = () =>{
-  console.log("Rendering Register Pi page")
+  
 
   const [formDisplayed, setFormDisplayed] = useState(false)
   const [raspberryPiName,setRaspberryPiName] = useState('')
@@ -38,6 +38,7 @@ const RegisterPiPage = () =>{
   useEffect(() => {
     async function getUserData(){
       try{
+        console.log("Rendering Register Pi page")
         const app = Realm.App.getApp("application-1-dkzsnxq")
         const mongo = await app.currentUser.mongoClient("mongodb-atlas");
         const collection = await mongo.db("Raspberry_pi").collection("Devices")
