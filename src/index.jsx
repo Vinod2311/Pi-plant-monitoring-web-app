@@ -4,6 +4,12 @@ import HomePage from './pages/homePage'
 import { StrictMode } from 'react'
 import '../node_modules/react-grid-layout/css/styles.css'
 import '../node_modules/react-resizable/css/styles.css'
+import "../node_modules/@syncfusion/ej2-base/styles/material.css";
+import "../node_modules/@syncfusion/ej2-buttons/styles/material.css";
+import "../node_modules/@syncfusion/ej2-lists/styles/material.css";
+import "../node_modules/@syncfusion/ej2-inputs/styles/material.css";
+import "../node_modules/@syncfusion/ej2-popups/styles/material.css";
+import "../node_modules/@syncfusion/ej2-react-calendars/styles/material.css";
 import { BrowserRouter,Route,Navigate,Routes, Link } from "react-router-dom";
 import SignUpPage from './pages/signUpPage';
 import LoginPage from './pages/loginPage';

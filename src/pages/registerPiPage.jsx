@@ -69,7 +69,7 @@ const RegisterPiPage = () =>{
   const appFirebase = initializeApp(firebaseConfig)
   const databaseFirebase = getDatabase(appFirebase)
   const auth = getAuth(appFirebase);
-  
+  const userFirebase = auth.currentUser
   
   const formatMinute = (val) => val + ` s`
   const formatHour = (val) => val + ` mins`
