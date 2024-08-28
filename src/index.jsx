@@ -11,6 +11,7 @@ import "../node_modules/@syncfusion/ej2-inputs/styles/material.css";
 import "../node_modules/@syncfusion/ej2-popups/styles/material.css";
 import "../node_modules/@syncfusion/ej2-react-calendars/styles/material.css";
 import "../node_modules/@syncfusion/ej2-splitbuttons/styles/material.css";
+import "../node_modules/@syncfusion/ej2-react-layouts/styles/material.css";
 import { BrowserRouter,Route,Navigate,Routes, Link } from "react-router-dom";
 import SignUpPage from './pages/signUpPage';
 import LoginPage from './pages/loginPage';

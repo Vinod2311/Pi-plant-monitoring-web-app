@@ -1,5 +1,8 @@
 import {
   Button,
+  Card,
+  CardBody,
+  Center,
   Checkbox,
   Editable,
   EditableInput,
@@ -32,7 +35,7 @@ import {
   SeriesDirective,
   Tooltip,
   AreaSeries,
-  StepLineSeries
+  StepLineSeries,
 } from "@syncfusion/ej2-react-charts";
 import { Component } from "react";
 import { DateTimePickerComponent } from "@syncfusion/ej2-react-calendars";
@@ -40,14 +43,15 @@ import { useState } from "react";
 import { useEffect } from "react";
 import * as Realm from "realm-web";
 import { DateRangePicker } from "@syncfusion/ej2-calendars";
+import React from "react";
 
-const ChartSeries = (props) => {
+function ChartSeries(props) {
   const [chartName, setChartName] = useState("");
   const [data, setData] = useState([]);
   const [dataType, setDataType] = useState("Line");
   const [collectionReading, setCollectionReading] = useState();
   const [dateRange, setDateRange] = useState({});
-  const [chartType, setChartType] = useState('')
+  const [chartType, setChartType] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   //console.log(isLoading);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -136,7 +140,7 @@ const ChartSeries = (props) => {
       { $sort: { _id: -1 } },
       { $limit: 1 },
     ]);
-    dataType
+    dataType;
     //console.log("last: " + last[0]._id);
 
     const readingsMongoCount = await collectionReading.aggregate([
@@ -155,7 +159,6 @@ const ChartSeries = (props) => {
       },
     ]);
 
-    
     const readingsMongo = await collectionReading.aggregate([
       {
         $match: {
@@ -165,8 +168,10 @@ const ChartSeries = (props) => {
 
       {
         $project: {
-          _id: 0, [dataType]:1, time: 1
-       },
+          _id: 0,
+          [dataType]: 1,
+          time: 1,
+        },
       },
     ]);
     console.log(dataType);
@@ -195,21 +200,21 @@ const ChartSeries = (props) => {
     setData(await getMongoTimeData(startDate, endDate));
   }
 
-  function handleCheckChange(value){
-    if (value){
-      setShowDatePicker(true)
-    } else{
-      setShowDatePicker(false)
+  function handleCheckChange(value) {
+    if (value) {
+      setShowDatePicker(true);
+    } else {
+      setShowDatePicker(false);
     }
   }
 
-  function handleDataTypeChange(value){
-    setDataType(value)
-    setData([])
+  function handleDataTypeChange(value) {
+    setDataType(value);
+    setData([]);
   }
 
-  function handleChartTypeChange(value){
-    setChartType(value)
+  function handleChartTypeChange(value) {
+    setChartType(value);
     //setData([])
   }
 
@@ -217,184 +222,211 @@ const ChartSeries = (props) => {
   //  handleChartChange(startDate, endDate)}
 
   return (
-    <>
-      <VStack>
-        <HStack width={"100%"}>
-          <Flex width={"100%"} >
-            <Button
-              size="sm"
-              colorScheme="red"
-              onClick={() => props.onDelete()}
-            >
-              x
-            </Button>
-            <Spacer />
+    <Card height={"100%"} width={"100%"}>
+      <CardBody height={"100%"}>
+        <VStack height={"100%"}>
+          <HStack width={"100%"}>
+            <Flex width={"100%"}>
+              <Button
+                size="sm"
+                colorScheme="red"
+                onClick={() => props.onDelete()}
+              >
+                x
+              </Button>
+              <Spacer />
 
-            <Editable
-              placeholder="Enter chart name"
-              textAlign="center"
-              bg={"white"}
-              fontWeight={"bold"}
-            >
-              <EditablePreview value={chartName} />
-              {/* Here is the custom input */}
-              <EditableInput
-                paddingStart={"20px"}
-                paddingEnd={"20px"}
-                value={chartName}
-                onChange={(e) => setChartName(e.target.value)}
-              />
-            </Editable>
-            <Spacer />
-            <Menu closeOnSelect={false}>
-              <MenuButton size={"sm"} colorScheme="blue" as={Button}>
-                menu
-              </MenuButton>
-              <MenuList>
-                <MenuGroup title="Toggle Show" >
-                  <Checkbox paddingStart={'10px'}  value={showDatePicker}  onChange={(e) => (handleCheckChange(e.target.checked))} >Time range picker</Checkbox>
-                </MenuGroup>
-                <MenuOptionGroup title="Data" type="radio">
-                  <MenuItemOption
-                    value="temperature BMP280(*C)"
-                    onClick={(e) => handleDataTypeChange(e.currentTarget.value)}
-                  >
-                    Temperature
-                  </MenuItemOption>
-                  <MenuItemOption
-                    value="Pressure(hPa)"
-                    onClick={(e) => handleDataTypeChange(e.currentTarget.value)}
-                  >
-                    Pressure
-                  </MenuItemOption>
-                  <MenuItemOption
-                    value="humidity(RH)"
-                    onClick={(e) => handleDataTypeChange(e.currentTarget.value)}
-                  >
-                    Humidity
-                  </MenuItemOption>
-                  <MenuItemOption
-                    value="soilMoisture(RH)"
-                    onClick={(e) => handleDataTypeChange(e.currentTarget.value)}
-                  >
-                    Soil Moisture
-                  </MenuItemOption>
-                  <MenuItemOption
-                    value="lightIntensity(lux)"
-                    onClick={(e) => handleDataTypeChange(e.currentTarget.value)}
-                  >
-                    Light Intensity
-                  </MenuItemOption>
-                </MenuOptionGroup>
-                <MenuOptionGroup title="Chart Type" type="radio">
-                <MenuItemOption
-                    value="Line"
-                    onClick={(e) => handleChartTypeChange(e.currentTarget.value)}
-                  >
-                    Line
-                  </MenuItemOption>
-                  
-                  <MenuItemOption
-                    value="Scatter"
-                    onClick={(e) => handleChartTypeChange(e.currentTarget.value)}
-                  >
-                    Scatter
-                  </MenuItemOption>
-                  <MenuItemOption
-                    value="Area"
-                    onClick={(e) => handleChartTypeChange(e.currentTarget.value)}
-                  >
-                    Area
-                  </MenuItemOption>
-                </MenuOptionGroup>
-
-                
-              </MenuList>
-            </Menu>
-          </Flex>
-        </HStack>
-        {!isLoading && showDatePicker ? (
-          <>
-            <DateTimePickerComponent
-              id="datetimepicker"
-              placeholder="Select start date and time"
-              value={startDate}
-              onChange={(e) => handleStartDateTimeChange(e.value)}
-              min={dateRange.minDate}
-              strictMode={true}
-              max={dateRange.maxDate}
-            />
-            <DateTimePickerComponent
-              id="datetimepicker"
-              placeholder="Select end date and time"
-              value={endDate}
-              onChange={(e) => handleEndDateTimeChange(e.value)}
-              min={dateRange.minDate}
-              strictMode={true}
-              max={dateRange.maxDate}
-            />
-            <Button
-              size={"sm"}
-              colorScheme="blue"
-              onClick={() => handleChartChange(startDate, endDate)}
-            >
-              Update
-            </Button>
-          </>
-        ) : null}
-        <div
-          style={{
-            overflow: "auto",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          {data.length > 1 ? (
-            <ChartComponent
-              background="white"
-              data={data}
-              width="100%"
-              primaryXAxis={primaryxAxis}
-              primaryYAxis={primaryyAxis}
-              legendSettings={legendSettings}
-              tooltip={tooltip}
-            >
-              <Inject
-                services={[
-                  DateTimeCategory,
-                  DateTime,
-                  DataLabel,
-                  Tooltip,
-                  Legend,
-                  LineSeries,
-                  Category,
-                  AreaSeries,
-                  StepLineSeries,
-                  ScatterSeries,
-                  ColumnSeries
-                ]}
-              />
-              <SeriesCollectionDirective>
-                <SeriesDirective
-                  dataSource={data}
-                  xName="time"
-                  yName={dataType}
-                  //name="Temperature"
-                  width={1}
-                  //marker={marker}
-                  type={chartType}
+              <Editable
+                placeholder="Enter chart name"
+                textAlign="center"
+                bg={"white"}
+                fontWeight={"bold"}
+                fontSize="2xl"
+              >
+                <EditablePreview value={chartName} />
+                {/* Here is the custom input */}
+                <EditableInput
+                  paddingStart={"20px"}
+                  paddingEnd={"20px"}
+                  value={chartName}
+                  onChange={(e) => setChartName(e.target.value)}
                 />
-              </SeriesCollectionDirective>
-            </ChartComponent>
-          ) : (
-            <Text textAlign={"center"}>
-              No Data to show. Choose Data type and time range with the menu.
-            </Text>
-          )}
-        </div>
-      </VStack>
-    </>
+              </Editable>
+              <Spacer />
+              <Menu closeOnSelect={false}>
+                <MenuButton size={"sm"} colorScheme="blue" as={Button}>
+                  menu
+                </MenuButton>
+                <MenuList>
+                  <MenuGroup title="Toggle Show">
+                    <Checkbox
+                      paddingStart={"10px"}
+                      value={showDatePicker}
+                      onChange={(e) => handleCheckChange(e.target.checked)}
+                    >
+                      Time range picker
+                    </Checkbox>
+                  </MenuGroup>
+                  <MenuOptionGroup title="Data" type="radio">
+                    <MenuItemOption
+                      value="temperature BMP280(*C)"
+                      onClick={(e) =>
+                        handleDataTypeChange(e.currentTarget.value)
+                      }
+                    >
+                      Temperature
+                    </MenuItemOption>
+                    <MenuItemOption
+                      value="Pressure(hPa)"
+                      onClick={(e) =>
+                        handleDataTypeChange(e.currentTarget.value)
+                      }
+                    >
+                      Pressure
+                    </MenuItemOption>
+                    <MenuItemOption
+                      value="humidity(RH)"
+                      onClick={(e) =>
+                        handleDataTypeChange(e.currentTarget.value)
+                      }
+                    >
+                      Humidity
+                    </MenuItemOption>
+                    <MenuItemOption
+                      value="soilMoisture(RH)"
+                      onClick={(e) =>
+                        handleDataTypeChange(e.currentTarget.value)
+                      }
+                    >
+                      Soil Moisture
+                    </MenuItemOption>
+                    <MenuItemOption
+                      value="lightIntensity(lux)"
+                      onClick={(e) =>
+                        handleDataTypeChange(e.currentTarget.value)
+                      }
+                    >
+                      Light Intensity
+                    </MenuItemOption>
+                  </MenuOptionGroup>
+                  <MenuOptionGroup title="Chart Type" type="radio">
+                    <MenuItemOption
+                      value="Line"
+                      onClick={(e) =>
+                        handleChartTypeChange(e.currentTarget.value)
+                      }
+                    >
+                      Line
+                    </MenuItemOption>
+
+                    <MenuItemOption
+                      value="Scatter"
+                      onClick={(e) =>
+                        handleChartTypeChange(e.currentTarget.value)
+                      }
+                    >
+                      Scatter
+                    </MenuItemOption>
+                    <MenuItemOption
+                      value="Area"
+                      onClick={(e) =>
+                        handleChartTypeChange(e.currentTarget.value)
+                      }
+                    >
+                      Area
+                    </MenuItemOption>
+                  </MenuOptionGroup>
+                </MenuList>
+              </Menu>
+            </Flex>
+          </HStack>
+          {!isLoading && showDatePicker ? (
+            <>
+              <DateTimePickerComponent
+                id="datetimepicker"
+                placeholder="Select start date and time"
+                value={startDate}
+                onChange={(e) => handleStartDateTimeChange(e.value)}
+                min={dateRange.minDate}
+                strictMode={true}
+                max={dateRange.maxDate}
+              />
+              <DateTimePickerComponent
+                id="datetimepicker"
+                placeholder="Select end date and time"
+                value={endDate}
+                onChange={(e) => handleEndDateTimeChange(e.value)}
+                min={dateRange.minDate}
+                strictMode={true}
+                max={dateRange.maxDate}
+              />
+              <Button
+                size={"sm"}
+                colorScheme="blue"
+                onClick={() => handleChartChange(startDate, endDate)}
+              >
+                Update
+              </Button>
+            </>
+          ) : null}
+          <div
+            style={{
+              overflow: "auto",
+              width: "100%",
+              height: "100%",
+            }}
+          >
+            {data.length > 1 ? (
+              <ChartComponent
+                background="white"
+                data={data}
+                width="100%"
+                height="100%"
+                primaryXAxis={primaryxAxis}
+                primaryYAxis={primaryyAxis}
+                legendSettings={legendSettings}
+                tooltip={tooltip}
+              >
+                <Inject
+                  services={[
+                    DateTimeCategory,
+                    DateTime,
+                    DataLabel,
+                    Tooltip,
+                    Legend,
+                    LineSeries,
+                    Category,
+                    AreaSeries,
+                    StepLineSeries,
+                    ScatterSeries,
+                    ColumnSeries,
+                  ]}
+                />
+                <SeriesCollectionDirective>
+                  <SeriesDirective
+                    dataSource={data}
+                    xName="time"
+                    yName={dataType}
+                    //name="Temperature"
+                    width={1}
+                    //marker={marker}
+                    type={chartType}
+                  />
+                </SeriesCollectionDirective>
+              </ChartComponent>
+            ) : (
+              <Center height={'100%'}>
+                <Text fontSize={'xl'} textAlign={'center'}>
+                  No Data to show. Choose Data type and time range with the
+                  menu.
+                </Text>
+              </Center>
+            )}
+          </div>
+        </VStack>
+      </CardBody>
+    </Card>
   );
 };
 
-export default ChartSeries;
+export default React.memo(ChartSeries)

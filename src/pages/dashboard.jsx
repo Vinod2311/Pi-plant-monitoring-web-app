@@ -29,6 +29,12 @@ import {
   MenuItem,
 } from "@chakra-ui/react";
 import "@fontsource/zcool-xiaowei";
+import { renderToStaticMarkup, renderToString } from "react-dom/server"
+import {
+  DashboardLayoutComponent,
+  PanelDirective,
+  PanelsDirective,
+} from "@syncfusion/ej2-react-layouts";
 import React from "react";
 import {
   Category,
@@ -42,6 +48,7 @@ import {
   DataLabel,
   Legend,
 } from "@syncfusion/ej2-react-charts";
+import "../../node_modules/@syncfusion/ej2-react-layouts/styles/material.css";
 import { registerLicense } from "@syncfusion/ej2-base";
 import GridLayout from "react-grid-layout";
 import MyFirstGrid from "../components/gridLayout";
@@ -64,9 +71,10 @@ import styles from "../styles/styles";
 import ChartSeries from "../components/chartSeries";
 import RealTimeGraph from "../components/realTimeGraph";
 import { useRef } from "react";
+import { useCallback } from "react";
+import { useMemo } from "react";
 
 const DashboardPage = () => {
-  
   registerLicense(
     "Ngo9BigBOggjHTQxAR8/V1NCaF1cWWhAYVF3WmFZfVpgdVVMYFlbRnNPMyBoS35RckVrW3xfcXZcRmZYVEVy"
   );
@@ -75,29 +83,13 @@ const DashboardPage = () => {
   const [userData, setUserData] = useState([]);
   const [updateTable, setUpdateTable] = useState(["spread operator"]);
   const [sensorPiName, setSensorPiName] = useState("");
-  const [collectionReading, setCollectionReading] = useState();
-  const [chartNames, setChartNames] = useState([])
+  const [dashboardObj, setDashboardObj] = useState([]);
 
-  const [sensorData, setSensorData] = useState({});
-  const [readingsMongo, setReadingsMongo] = useState([]);
-  const [widgets, setWidgets] = useState([]);
-  console.log(widgets[0])
   const mongo = useRef(null);
 
   useEffect(() => {
     async function getUserData() {
       console.log("Rendering dashboard page");
-      const firebaseConfig = {
-        apiKey: "AIzaSyCHfnIcqTbOKuKtizPN4qUp6_AuwABENF8",
-        authDomain: "raspberry-pi-plant-monitoring.firebaseapp.com",
-        databaseURL:
-          "https://raspberry-pi-plant-monitoring-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "raspberry-pi-plant-monitoring",
-        storageBucket: "raspberry-pi-plant-monitoring.appspot.com",
-        messagingSenderId: "656085848146",
-        appId: "1:656085848146:web:d899dd1a52857536610f8b",
-        measurementId: "G-XZ4ZSM1J4X",
-      };
       try {
         //Mongo
         const appRealm = Realm.App.getApp("application-1-dkzsnxq");
@@ -110,187 +102,101 @@ const DashboardPage = () => {
         const collectionReading = mongo.current
           .db("Readings")
           .collection(`${user.id}`);
-        var inputDate = new Date();
-
-        const first = await collectionReading.findOne();
-        const last = await collectionReading.aggregate([
-          {
-            $group: {
-              _id: "$time",
-            },
-          },
-          { $sort: { _id: -1 } },
-          { $limit: 1 },
-        ]);
-
-        console.log("first: " + first.time.toLocaleString());
-        console.log("last: " + last[0]._id.toLocaleString());
+        
         const devices = await collectionDevices.find({ owner_id: user.id });
         setUserData(devices);
-        setCollectionReading(collectionReading);
+        
         //var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
         //saveAs(blob, "hello world.txt");
 
-        //firebase
-        //const appsFirebase = getApps()
-        //const appFirebase = appsFirebase[0]
-        /*
-        const appFirebase = initializeApp(firebaseConfig);
-        const databaseFirebase = await getDatabase(appFirebase);
-        const auth = getAuth(appFirebase);
-        const userFirebase = auth.currentUser;
-
-        const dataRef = await ref(
-          databaseFirebase,
-          "users/" + userFirebase.uid + "/raspi 1/reading"
-        );
-
-        onValue(dataRef, (snapshot) => {
-          const firebaseSnapshot = snapshot.val();
-          setSensorData(firebaseSnapshot);
-          console.log("firebase data:" + firebaseSnapshot.timestamp);
-        });*/
       } catch (err) {
         console.log(err);
       }
     }
     getUserData();
-    //getMongoTimeData('2024-08-23-00-00-00','2024-08-23-01-00-00')
   }, []);
 
-  async function setupFirebase() {
-    const appFirebase = initializeApp(firebaseConfig);
-    const databaseFirebase = getDatabase(appFirebase);
-    const auth = getAuth(appFirebase);
-    const userFirebase = auth.currentUser;
-    const dataRef = await ref(
-      databaseFirebase,
-      "users/" + userFirebase.uid + "/raspi 1/reading"
-    );
-    onValue(dataRef, (snapshot) => {
-      const firebaseSnapshot = snapshot.val();
-      setSensorData(firebaseSnapshot);
-      console.log("firebase data:" + firebaseSnapshot.timestamp);
-    });
-  }
-
-  async function setupMongo() {
-    const appRealm = Realm.App.getApp("application-1-dkzsnxq");
-    const mongo = await appRealm.currentUser.mongoClient("mongodb-atlas");
-    const collectionDevices = await mongo
-      .db("Raspberry_pi")
-      .collection("Devices");
-
-    const user = appRealm.currentUser;
-    const collectionReading = mongo.db("Readings").collection(`${user.id}`);
-    var inputDate = new Date();
-    const readingsMongo = await collectionReading.find({
-      "soilMoisture(RH)": 27.86,
-    });
-    const devices = await collectionDevices.find({ owner_id: user.id });
-    console.log("devices", devices);
-    setUserData(devices);
-    setCollectionReading(collectionReading);
-  }
-
-  //setupFirebase()
-  //setupMongo()
-
-  const addWidget = (type) => {
-    const newWidget = { i: `widget ${widgets.length + 1}`, type: type };
-    //const newArray = ([...widgets,newWidget])
-    setWidgets([...widgets,newWidget]);
-  }
-
-  const removeWidget = (i) => {
-    const newLayout = widgets.filter((item) => item.i !== i);
-    setWidgets(newLayout);
-  };
   
+  let cellSpacing = [5, 5];
+  let data = ["Panel1"];
 
-  const getMongoRange = async () => {
-    const last = await collectionReading.findOne();
-    const first = await collectionReading.findOne({});
-    console.log("first: " + first.time);
-    console.log("last: " + last.time);
-  };
-  //getMongoRange()
+  
+  function addComponent() {
+    dashboardObj.map(function (object, i) {
+      //console.log(object.col);
+      //console.log(contentCreater(object.type));
 
-  function toISOString(date) {
-    const parts = date.split("-");
-    const mydate = new Date(
-      parts[0],
-      parts[1] - 1,
-      parts[2],
-      parts[3],
-      parts[4],
-      parts[5]
+      return (
+        <PanelDirective
+          key={0}
+          sizeX={2}
+          sizeY={2}
+          row={0}
+          col={0}
+          content={0}
+          header={null}
+        />
+      );
+    });
+  }
+
+  function chartCreater() {
+    return (
+      <Flex display='flex' className="template" height='100%' width='100%' >
+        <ChartSeries key={this} onDelete={() => onRemove(this)} />
+      </Flex>
     );
-    console.log(mydate);
-    return mydate;
-  }
-  //toISOString('2024-08-22')
-
-  const getMongoTimeData = async (startDate, endDate) => {
-    console.log(new Date());
-    const startDateISO = toISOString(startDate);
-    const endDateISO = toISOString(endDate);
-    const last = await collectionReading.aggregate([
-      {
-        $group: {
-          _id: "$time",
-        },
-      },
-      { $sort: { _id: -1 } },
-      { $limit: 1 },
-    ]);
-    console.log("last: " + last[0]._id);
-
-    const readingsMongoCount = await collectionReading.aggregate([
-      {
-        $match: {
-          time: { $lte: endDateISO, $gte: startDateISO },
-        },
-      },
-      {
-        $group: {
-          _id: "$time",
-        },
-      },
-      {
-        $count: "items",
-      },
-    ]);
-
-    const readingsMongo = await collectionReading.aggregate([
-      {
-        $match: {
-          time: { $lte: endDateISO, $gte: startDateISO },
-        },
-      },
-
-      //{
-      //  $group: {
-      //    _id: "$soilMoisture(RH)",
-      //  },
-      //},
-    ]);
-    console.log(readingsMongo[0]);
-    return readingsMongo;
   };
-  //setReadingsMongo(readingsMongo)
 
-  //getMongoTimeData('2024-08-23-00-00-00','2024-08-23-01-00-00')
-  async function handleChartChange(startDate, endDate) {
-    setReadingsMongo(await getMongoTimeData(startDate, endDate));
-  }
+  function graphCreater() {
+    return ( 
+      <Flex  display='flex' className="template" height='100%' width='100%' >
+        <RealTimeGraph   />
+      </Flex>
+    );
+  };
+
+  const memoizedGraphCreater = useCallback(graphCreater,[])
+  
+  const onAdd = (args) => {
+    let panel = [
+      {
+        id: (dashboardObj.length + 1).toString() + "_layout",
+        sizeX: 2,
+        sizeY: 2,
+        row: 0,
+        col: 0,
+        type: args,
+
+      },
+    ];
+    setDashboardObj([...dashboardObj, panel[0]]);
+  };
+
+  const onRemove = (id) => {
+    console.log("dashboard: " + dashboardObj);
+    const newLayout = dashboardObj.filter((item) => item.id !== id)
+    setDashboardObj(newLayout)
+  };
+  let dashboardObj2
+
+  let restoreModel = [];
+    function onRestore(args) {
+        dashboardObj.panels = restoreModel;
+    }
+    function onSave(args) {
+        restoreModel = dashboardObj.serialize();
+        console.log(restoreModel)
+    }
+  
   return (
     <>
       <Flex style={styles.app}>
         <Container
           minHeight={"max-content"}
           background={"#A0A5CB"}
-          h="max-content"
+          //h="max-content"
+          h={'100vh'}
           maxW={"1500px"}
           minW={"1300px"}
           paddingInlineEnd={"0"}
@@ -299,7 +205,7 @@ const DashboardPage = () => {
           <Grid
             flex="1"
             gridTemplateColumns={"1fr 1fr 1fr 1fr"}
-            gridTemplateRows={"2fr 5fr 1fr"}
+            gridTemplateRows={'300px 1fr 50px'}
             templateAreas={`"logo nav nav nav"
                         "main1 main1 main1 main1"
                         "footer footer footer footer"`}
@@ -339,42 +245,76 @@ const DashboardPage = () => {
                       boxShadow={"2xl"}
                       rounded={"2xl"}
                     >
-                      <SimpleGrid columns={2} spacing={10}>
-                        {widgets.length > 0 ? (
-                          widgets.map(function(item,j){
-                            return (
-                            <div key={item.i} style={{ background: "#009688" }}>
-                              <Card>
-                                <CardBody>
-                                  {(item.type == "chartSeries") ? (
-                                  <ChartSeries  onDelete={ () => removeWidget(item.i)}/>)
-                                  :(<RealTimeGraph onDelete={ () => removeWidget(item.i)}/>)}
-                                </CardBody>
-                              </Card>
-                            </div>)
-                          }
-                        )) : (
-                          <Card>
-                            <CardBody>Add a display</CardBody>
-                          </Card>
-                        )}
-                      </SimpleGrid>
+                      {dashboardObj.length > 0 ? (
+                        <div className="control-section">
+                          <DashboardLayoutComponent
+                            id="defaultLayout"
+                            cellSpacing={cellSpacing}
+                            allowResizing={true}
+                            showGridLines={true}
+                            created={onSave}
+                            //panels={dashboardObj}
+                            
+                            columns={5}
+                          >
+                            <PanelsDirective>
+                              {dashboardObj.map(function (object, i) {
+                                
+                                if (object.type == 'chartSeries'){
+                                  
+                                return (
+                                  <PanelDirective
+                                    key={object.id}
+                                    sizeX={2}
+                                    sizeY={2}
+                                    row={0}
+                                    col={0}
+                                    content={chartCreater.bind(object.id)}
+                                    header={null}
+                                    
+                                  />
+                                )} else if (object.type == 'realTimeGraph'){
+                                  
+                                  return (
+                                    <PanelDirective
+                                      key={object.id}
+                                      sizeX={2}
+                                      sizeY={2}
+                                      row={0}
+                                      col={0}
+                                      content={memoizedGraphCreater}
+                                      header={null}
+                                    />)
+                                };
+                              })}
+                              ;
+                            </PanelsDirective>
+                          </DashboardLayoutComponent>
+                        </div>
+                      ) : (
+                        <Card width={"20%"}>
+                          <CardBody>Add a display</CardBody>
+                        </Card>
+                      )}
+
                       <Menu>
-                      <MenuButton
-                      as={Button}
-                        margin={"30px"}
-                        colorScheme="blue"
-                        
-                      >
-                        Add
-                      </MenuButton>
-                      <MenuList>
-                        <MenuItem onClick={() => addWidget('chartSeries')}>
-                        Historical chart</MenuItem>
-                        <MenuItem onClick={() => addWidget('realTimeGraph')}>
-                        Real time graph</MenuItem>
-                      </MenuList>
+                        <MenuButton
+                          as={Button}
+                          margin={"30px"}
+                          colorScheme="blue"
+                        >
+                          Add
+                        </MenuButton>
+                        <MenuList>
+                          <MenuItem onClick={() => onAdd("chartSeries")}>
+                            Historical chart
+                          </MenuItem>
+                          <MenuItem onClick={() => onAdd("realTimeGraph")}>
+                            Real time graph
+                          </MenuItem>
+                        </MenuList>
                       </Menu>
+                      <Button onClick={onSave}>save</Button>
                     </Box>
                   </Flex>
                 </>
