@@ -12,15 +12,16 @@ import {
   Menu,
   MenuButton,
   MenuGroup,
-  MenuItem,
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
   Spacer,
   Text,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
+import { DateTimePickerComponent } from "@syncfusion/ej2-react-calendars";
 import {
+  AreaSeries,
   Category,
   ChartComponent,
   ColumnSeries,
@@ -29,21 +30,15 @@ import {
   DateTimeCategory,
   Inject,
   Legend,
-  ScatterSeries,
   LineSeries,
+  ScatterSeries,
   SeriesCollectionDirective,
   SeriesDirective,
-  Tooltip,
-  AreaSeries,
   StepLineSeries,
+  Tooltip,
 } from "@syncfusion/ej2-react-charts";
-import { Component } from "react";
-import { DateTimePickerComponent } from "@syncfusion/ej2-react-calendars";
-import { useState } from "react";
-import { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import * as Realm from "realm-web";
-import { DateRangePicker } from "@syncfusion/ej2-calendars";
-import React from "react";
 
 function ChartSeries(props) {
   const [chartName, setChartName] = useState("");
@@ -53,27 +48,25 @@ function ChartSeries(props) {
   const [dateRange, setDateRange] = useState({});
   const [chartType, setChartType] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  //console.log(isLoading);
   const [showDatePicker, setShowDatePicker] = useState(false);
-
-  const [chosenRange, setChosenRange] = useState({
-    startDate: "",
-    endDate: Date,
-  });
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
 
+  //Define chart settings
   const tooltip = { enable: true, shared: false };
   const primaryyAxis = { title: dataType };
   const primaryxAxis = {
-    labelIntersectAction: "Hide",
+    labelIntersectAction: "Rotate45",
     title: "time",
     valueType: "DateTime",
-    intervalType: "Hours",
-    interval: 1,
+    intervalType: "Auto",
+    //minimum: startDate,
+    //maximum: endDate,
+    //interval: 5,
+    labelFormat: "dd/MM hh:mm",
   };
   const legendSettings = { visible: true };
-  const marker = { dataLabel: { visible: true } };
+  
 
   useEffect(() => {
     async function getData() {
@@ -83,7 +76,8 @@ function ChartSeries(props) {
         const mongo = await appRealm.currentUser.mongoClient("mongodb-atlas");
         const user = appRealm.currentUser;
         const collectionReading = mongo.db("Readings").collection(`${user.id}`);
-        var inputDate = new Date();
+
+        //Get max date and min date of readings
         const first = await collectionReading.findOne();
         const last = await collectionReading.aggregate([
           {
@@ -94,71 +88,20 @@ function ChartSeries(props) {
           { $sort: { _id: -1 } },
           { $limit: 1 },
         ]);
-        //console.log("first: " + first.time.toLocaleString());
-        //console.log("last: " + last[0]._id.toLocaleString());
         setDateRange({ minDate: first.time, maxDate: last[0]._id });
-
         setCollectionReading(collectionReading);
-
-        //var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
-        //saveAs(blob, "hello world.txt");
+        //Finish loading
         setIsLoading(false);
       } catch (err) {
         console.log(err);
       }
     }
     getData();
-
-    //getMongoTimeData('2024-08-23-00-00-00','2024-08-23-01-00-00')
   }, []);
 
-  function toISOString(date) {
-    const parts = date.split("-");
-    const mydate = new Date(
-      parts[0],
-      parts[1] - 1,
-      parts[2],
-      parts[3],
-      parts[4],
-      parts[5]
-    );
-    console.log(mydate);
-    return mydate;
-  }
-  //toISOString('2024-08-22')
 
+  //Get readings based on time range
   const getMongoTimeData = async (startDate, endDate) => {
-    //console.log(new Date());
-    //const startDateISO = toISOString(startDate);
-    //const endDateISO = toISOString(endDate);
-    const last = await collectionReading.aggregate([
-      {
-        $group: {
-          _id: "$time",
-        },
-      },
-      { $sort: { _id: -1 } },
-      { $limit: 1 },
-    ]);
-    dataType;
-    //console.log("last: " + last[0]._id);
-
-    const readingsMongoCount = await collectionReading.aggregate([
-      {
-        $match: {
-          time: { $lte: endDate, $gte: startDate },
-        },
-      },
-      {
-        $group: {
-          _id: "$time",
-        },
-      },
-      {
-        $count: "items",
-      },
-    ]);
-
     const readingsMongo = await collectionReading.aggregate([
       {
         $match: {
@@ -183,23 +126,21 @@ function ChartSeries(props) {
     const newRange = { minDate: value, maxDate: dateRange.maxDate };
     setDateRange(newRange);
     console.log("start datetime: " + value);
-    //if (startDate && endDate) {
-    //  handleChartChange(startDate, endDate)
+
   }
 
   function handleEndDateTimeChange(value) {
     setEndDate(value);
     const newRange = { minDate: dateRange.minDate, maxDate: value };
     setDateRange(newRange);
-    //if (startDate && endDate) {
-    //  handleChartChange(startDate, endDate)
   }
 
-  //getMongoTimeData('2024-08-23-00-00-00','2024-08-23-01-00-00')
+
   async function handleChartChange(startDate, endDate) {
     setData(await getMongoTimeData(startDate, endDate));
   }
 
+  //Show or hide date picker
   function handleCheckChange(value) {
     if (value) {
       setShowDatePicker(true);
@@ -215,11 +156,7 @@ function ChartSeries(props) {
 
   function handleChartTypeChange(value) {
     setChartType(value);
-    //setData([])
   }
-
-  //if (startDate && endDate) {
-  //  handleChartChange(startDate, endDate)}
 
   return (
     <Card height={"100%"} width={"100%"}>
@@ -244,7 +181,7 @@ function ChartSeries(props) {
                 fontSize="2xl"
               >
                 <EditablePreview value={chartName} />
-                {/* Here is the custom input */}
+                
                 <EditableInput
                   paddingStart={"20px"}
                   paddingEnd={"20px"}
@@ -284,14 +221,7 @@ function ChartSeries(props) {
                     >
                       Pressure
                     </MenuItemOption>
-                    <MenuItemOption
-                      value="humidity(RH)"
-                      onClick={(e) =>
-                        handleDataTypeChange(e.currentTarget.value)
-                      }
-                    >
-                      Humidity
-                    </MenuItemOption>
+
                     <MenuItemOption
                       value="soilMoisture(RH)"
                       onClick={(e) =>
@@ -352,7 +282,7 @@ function ChartSeries(props) {
                 max={dateRange.maxDate}
               />
               <DateTimePickerComponent
-                id="datetimepicker"
+                id="datetimepicker2"
                 placeholder="Select end date and time"
                 value={endDate}
                 onChange={(e) => handleEndDateTimeChange(e.value)}
@@ -371,7 +301,7 @@ function ChartSeries(props) {
           ) : null}
           <div
             style={{
-              overflow: "auto",
+              
               width: "100%",
               height: "100%",
             }}
@@ -379,6 +309,10 @@ function ChartSeries(props) {
             {data.length > 1 ? (
               <ChartComponent
                 background="white"
+                
+                overflow={"auto"}
+                id={props.id}
+                className="charts"
                 data={data}
                 width="100%"
                 height="100%"
@@ -407,7 +341,6 @@ function ChartSeries(props) {
                     dataSource={data}
                     xName="time"
                     yName={dataType}
-                    //name="Temperature"
                     width={1}
                     //marker={marker}
                     type={chartType}
@@ -415,8 +348,8 @@ function ChartSeries(props) {
                 </SeriesCollectionDirective>
               </ChartComponent>
             ) : (
-              <Center height={'100%'}>
-                <Text fontSize={'xl'} textAlign={'center'}>
+              <Center height={"100%"}>
+                <Text fontSize={"xl"} textAlign={"center"}>
                   No Data to show. Choose Data type and time range with the
                   menu.
                 </Text>
@@ -427,6 +360,6 @@ function ChartSeries(props) {
       </CardBody>
     </Card>
   );
-};
+}
 
-export default React.memo(ChartSeries)
+export default ChartSeries;

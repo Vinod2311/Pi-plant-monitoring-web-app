@@ -1,25 +1,18 @@
-import { Container, Flex,Button,Box, IconButton, Stack, useColorModeValue, Grid, GridItem, Image, Text, Center, HStack, Icon, Spacer } from "@chakra-ui/react";
-import {
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuDivider,
-} from '@chakra-ui/react'
+import { Box, Button, Center, Container, Grid, GridItem, Image, Stack, Text } from "@chakra-ui/react";
 import '@fontsource/zcool-xiaowei';
-import React from "react"
-
+import React from "react";
 import Footer from "../components/footer";
-import Nav from "../components/navEntry";
 import Logo from "../components/logo";
-import NavMain from "../components/navMain";
 import NavEntry from "../components/navEntry";
+import { useNavigate } from "react-router-dom";
+
+
 
 const HomePage = () =>{
   console.log("Rendering home page")
+
+  //Used for the navigation button
+  const navigate = useNavigate()
 
   return(
     <>
@@ -43,7 +36,7 @@ const HomePage = () =>{
               </Text>
             </Box>
             <Center>
-              <Button size='lg' colorScheme='blue' w='200px' justifyContent={'center'}>
+              <Button size='lg' colorScheme='blue' w='200px' justifyContent={'center'} onClick={() => navigate('/signup')}>
                 Sign Up
               </Button>
             </Center>

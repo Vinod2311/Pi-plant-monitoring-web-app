@@ -1,331 +1,264 @@
 import {
+  Box,
+  Button,
+  Center,
   Container,
   Flex,
-  Button,
-  Box,
-  IconButton,
-  Stack,
-  useColorModeValue,
   Grid,
   GridItem,
-  Image,
-  Text,
-  Center,
-  HStack,
-  Icon,
-  Spacer,
-  Select,
-  CardBody,
-  Card,
-  VStack,
-  Heading,
-  SimpleGrid,
-  Editable,
-  EditablePreview,
-  EditableInput,
   Menu,
   MenuButton,
-  MenuList,
   MenuItem,
+  MenuList,
+  Select,
 } from "@chakra-ui/react";
 import "@fontsource/zcool-xiaowei";
-import { renderToStaticMarkup, renderToString } from "react-dom/server"
-import {
-  DashboardLayoutComponent,
-  PanelDirective,
-  PanelsDirective,
-} from "@syncfusion/ej2-react-layouts";
-import React from "react";
-import {
-  Category,
-  ChartComponent,
-  Tooltip,
-  ColumnSeries,
-  Inject,
-  LineSeries,
-  SeriesCollectionDirective,
-  SeriesDirective,
-  DataLabel,
-  Legend,
-} from "@syncfusion/ej2-react-charts";
-import "../../node_modules/@syncfusion/ej2-react-layouts/styles/material.css";
 import { registerLicense } from "@syncfusion/ej2-base";
-import GridLayout from "react-grid-layout";
-import MyFirstGrid from "../components/gridLayout";
-import "../../node_modules/react-grid-layout/css/styles.css";
-import "../../node_modules/react-resizable/css/styles.css";
+import { DashboardLayoutComponent } from "@syncfusion/ej2-react-layouts";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import * as Realm from "realm-web";
+import ChartSeries from "../components/chartSeries";
 import Footer from "../components/footer";
-import Nav from "../components/navEntry";
 import Logo from "../components/logo";
 import NavMain from "../components/navMain";
-import { useLocation } from "react-router-dom";
-import { useState } from "react";
-import { useEffect } from "react";
-import * as Realm from "realm-web";
-import { getApp, getApps, initializeApp } from "firebase/app";
-import { getDatabase, onValue, ref } from "firebase/database";
-import { getAuth } from "firebase/auth";
-import ComplexInterfaceGrid from "../components/grid";
-import { IoChevronDownCircleOutline } from "react-icons/io5";
-import styles from "../styles/styles";
-import ChartSeries from "../components/chartSeries";
 import RealTimeGraph from "../components/realTimeGraph";
-import { useRef } from "react";
-import { useCallback } from "react";
-import { useMemo } from "react";
+
+import { FiChevronDown } from "react-icons/fi";
+import ImageChart from "../components/image";
 
 const DashboardPage = () => {
+  //syncfusion register license
   registerLicense(
     "Ngo9BigBOggjHTQxAR8/V1NCaF1cWWhAYVF3WmFZfVpgdVVMYFlbRnNPMyBoS35RckVrW3xfcXZcRmZYVEVy"
   );
 
-  const [formDisplayed, setFormDisplayed] = useState(false);
   const [userData, setUserData] = useState([]);
-  const [updateTable, setUpdateTable] = useState(["spread operator"]);
   const [sensorPiName, setSensorPiName] = useState("");
-  const [dashboardObj, setDashboardObj] = useState([]);
+  const showMessage = useRef(false);
+  const navigate = useNavigate();
 
-  const mongo = useRef(null);
+  //dashboard configuration settings -- panel resize settings
+  let resize = ["e-south-east", "e-east", "e-west", "e-north", "e-south"];
+  let count = 0;
+  let dashboardObj;
 
   useEffect(() => {
     async function getUserData() {
       console.log("Rendering dashboard page");
       try {
-        //Mongo
-        const appRealm = Realm.App.getApp("application-1-dkzsnxq");
-        mongo.current = await appRealm.currentUser.mongoClient("mongodb-atlas");
-        const collectionDevices = await mongo.current
+        //Mongo Client creation
+        const appMongo = new Realm.App({
+          id: "application-1-dkzsnxq",
+        });
+        const mongoClient = await appMongo.currentUser.mongoClient(
+          "mongodb-atlas"
+        );
+        const collectionDevices = await mongoClient
           .db("Raspberry_pi")
           .collection("Devices");
 
-        const user = appRealm.currentUser;
-        const collectionReading = mongo.current
-          .db("Readings")
-          .collection(`${user.id}`);
-        
-        const devices = await collectionDevices.find({ owner_id: user.id });
+        //set user data state from mongoDB
+        const devices = await collectionDevices.find({
+          owner_id: appMongo.currentUser.id,
+        });
         setUserData(devices);
-        
-        //var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
-        //saveAs(blob, "hello world.txt");
-
+        showMessage.current = true;
       } catch (err) {
         console.log(err);
       }
     }
+
+    //if user is not loggedIn , go to landing page
+    if (sessionStorage.getItem("userFirebase") == null) {
+      navigate("/");
+    }
     getUserData();
-  }, []);
+  }, [navigate]);
 
-  
-  let cellSpacing = [5, 5];
-  let data = ["Panel1"];
-
-  
-  function addComponent() {
-    dashboardObj.map(function (object, i) {
-      //console.log(object.col);
-      //console.log(contentCreater(object.type));
-
-      return (
-        <PanelDirective
-          key={0}
-          sizeX={2}
-          sizeY={2}
-          row={0}
-          col={0}
-          content={0}
-          header={null}
-        />
-      );
-    });
-  }
-
+  //Creates charts component for historical data
   function chartCreater() {
     return (
-      <Flex display='flex' className="template" height='100%' width='100%' >
-        <ChartSeries key={this} onDelete={() => onRemove(this)} />
+      <Flex display="flex" className="template" height="100%" width="100%">
+        <ChartSeries id={this} onDelete={() => onRemove(this)} />
       </Flex>
     );
-  };
+  }
 
+  //Creates graph component for real time data
   function graphCreater() {
-    return ( 
-      <Flex  display='flex' className="template" height='100%' width='100%' >
-        <RealTimeGraph   />
+    return (
+      <Flex display="flex" className="template" height="100%" width="100%">
+        <RealTimeGraph id={this} onDelete={() => onRemove(this)} />
       </Flex>
     );
-  };
+  }
 
-  const memoizedGraphCreater = useCallback(graphCreater,[])
-  
+  //Creates image viewer component
+  function imageCreater() {
+    return (
+      <Flex display="flex" className="template" height="100%" width="100%">
+        <ImageChart id={this} onDelete={() => onRemove(this)} />
+      </Flex>
+    );
+  }
+
+  //Starting panel
+  const panels = [
+    {
+      id: "starter",
+      sizeX: 3,
+      sizeY: 3,
+      minSizeX: 3,
+      minSizeY: 3,
+      maxSizeY: 10,
+      maxSizeX: 10,
+      row: 0,
+      col: 0,
+      type: "chartSeries",
+      content: chartCreater.bind("starter"),
+    },
+  ];
+
+  //Method to add a new panel to dashboard
   const onAdd = (args) => {
+    let contentToAdd;
+    const id = (count + 1).toString() + "_layout";
+    if (args == "chartSeries") {
+      contentToAdd = chartCreater;
+    } else if (args == "realTimeGraph") {
+      contentToAdd = graphCreater;
+    } else if (args == "imageChart") {
+      contentToAdd = imageCreater;
+    }
     let panel = [
       {
-        id: (dashboardObj.length + 1).toString() + "_layout",
-        sizeX: 2,
-        sizeY: 2,
+        id: id,
+        sizeX: 3,
+        sizeY: 3,
+        minSizeX: 3,
+        minSizeY: 3,
+        maxSizeY: 10,
+        maxSizeX: 10,
         row: 0,
         col: 0,
         type: args,
-
+        content: contentToAdd.bind(id),
       },
     ];
-    setDashboardObj([...dashboardObj, panel[0]]);
+
+    dashboardObj.addPanel(panel[0]);
+    count++;
+    showMessage.current = false;
   };
 
-  const onRemove = (id) => {
-    console.log("dashboard: " + dashboardObj);
-    const newLayout = dashboardObj.filter((item) => item.id !== id)
-    setDashboardObj(newLayout)
-  };
-  let dashboardObj2
+  //Remove a panel from dashboard
+  function onRemove(id) {
+    dashboardObj.removePanel(id);
+  }
 
-  let restoreModel = [];
-    function onRestore(args) {
-        dashboardObj.panels = restoreModel;
-    }
-    function onSave(args) {
-        restoreModel = dashboardObj.serialize();
-        console.log(restoreModel)
-    }
-  
+  //Updates panel content when panel size is changed
+  const onPanelResize = (args) => {
+    args.element
+      .querySelector(" .e-panel-container .e-panel-content .charts")
+      .ej2_instances[0].refresh();
+  };
+
   return (
     <>
-      <Flex style={styles.app}>
-        <Container
-          minHeight={"max-content"}
-          background={"#A0A5CB"}
-          //h="max-content"
-          h={'100vh'}
-          maxW={"1500px"}
-          minW={"1300px"}
-          paddingInlineEnd={"0"}
-          paddingInlineStart={"0"}
-        >
-          <Grid
-            flex="1"
-            gridTemplateColumns={"1fr 1fr 1fr 1fr"}
-            gridTemplateRows={'300px 1fr 50px'}
-            templateAreas={`"logo nav nav nav"
+      <Container
+        minHeight={"1300px"}
+        background={"#A0A5CB"}
+        maxW={"1500px"}
+        minW={"1300px"}
+        paddingInlineEnd={"0"}
+        paddingInlineStart={"0"}
+      >
+        <Grid
+          h={"100%"}
+          minH={"700px"}
+          w={"100%"}
+          gridTemplateColumns={"1fr 1fr 1fr 1fr"}
+          gridTemplateRows={"300px 1fr 50px"}
+          templateAreas={`"logo nav nav nav"
                         "main1 main1 main1 main1"
                         "footer footer footer footer"`}
-          >
-            <GridItem area={"nav"}>
-              <NavMain />
-            </GridItem>
-            <GridItem area={"logo"}>
-              <Logo />
-            </GridItem>
-            <GridItem area={"main1"}>
-              <Center>
-                <Select
-                  bg="white"
-                  placeholder="Select raspberry pi"
-                  value={sensorPiName}
-                  onChange={(e) => setSensorPiName(e.target.value)}
-                  w={"200px"}
-                >
-                  {userData.length > 0
-                    ? userData.map(function (object, i) {
-                        return (
-                          <option key={i}>{object.raspberryPiName}</option>
-                        );
-                      })
-                    : null}
-                </Select>
-              </Center>
-              {!sensorPiName ? null : (
-                <>
-                  <Flex>
-                    <Box
-                      flex={"1"}
-                      overflow={"auto"}
-                      padding={"20px"}
-                      margin={"20px"}
-                      boxShadow={"2xl"}
-                      rounded={"2xl"}
-                    >
-                      {dashboardObj.length > 0 ? (
-                        <div className="control-section">
-                          <DashboardLayoutComponent
-                            id="defaultLayout"
-                            cellSpacing={cellSpacing}
-                            allowResizing={true}
-                            showGridLines={true}
-                            created={onSave}
-                            //panels={dashboardObj}
-                            
-                            columns={5}
-                          >
-                            <PanelsDirective>
-                              {dashboardObj.map(function (object, i) {
-                                
-                                if (object.type == 'chartSeries'){
-                                  
-                                return (
-                                  <PanelDirective
-                                    key={object.id}
-                                    sizeX={2}
-                                    sizeY={2}
-                                    row={0}
-                                    col={0}
-                                    content={chartCreater.bind(object.id)}
-                                    header={null}
-                                    
-                                  />
-                                )} else if (object.type == 'realTimeGraph'){
-                                  
-                                  return (
-                                    <PanelDirective
-                                      key={object.id}
-                                      sizeX={2}
-                                      sizeY={2}
-                                      row={0}
-                                      col={0}
-                                      content={memoizedGraphCreater}
-                                      header={null}
-                                    />)
-                                };
-                              })}
-                              ;
-                            </PanelsDirective>
-                          </DashboardLayoutComponent>
-                        </div>
-                      ) : (
-                        <Card width={"20%"}>
-                          <CardBody>Add a display</CardBody>
-                        </Card>
-                      )}
+        >
+          <GridItem area={"nav"}>
+            <NavMain />
+          </GridItem>
+          <GridItem area={"logo"}>
+            <Logo />
+          </GridItem>
+          <GridItem height={"100%"} area={"main1"}>
+            <Center>
+              <Select
+                bg="white"
+                placeholder="Select raspberry pi"
+                value={sensorPiName}
+                onChange={(e) => setSensorPiName(e.target.value)}
+                w={"200px"}
+              >
+                {userData.length > 0
+                  ? userData.map(function (object, i) {
+                      return <option key={i}>{object.raspberryPiName}</option>;
+                    })
+                  : null}
+              </Select>
+            </Center>
+            {!sensorPiName ? null : (
+              <Box
+                background={"#948ec0"}
+                padding={"20px"}
+                margin={"20px"}
+                boxShadow={"2xl"}
+                rounded={"2xl"}
+              >
+                <div className="dashboard">
+                  <DashboardLayoutComponent
+                    id="defaultLayout"
+                    ref={(s) => (dashboardObj = s)}
+                    cellSpacing={[20, 20]}
+                    allowResizing={true}
+                    panels={panels}
+                    resizeStop={onPanelResize}
+                    allowFloating={true}
+                    allowPushing={true}
+                    columns={10}
+                    resizableHandles={resize}
+                  ></DashboardLayoutComponent>
+                </div>
 
-                      <Menu>
-                        <MenuButton
-                          as={Button}
-                          margin={"30px"}
-                          colorScheme="blue"
-                        >
-                          Add
-                        </MenuButton>
-                        <MenuList>
-                          <MenuItem onClick={() => onAdd("chartSeries")}>
-                            Historical chart
-                          </MenuItem>
-                          <MenuItem onClick={() => onAdd("realTimeGraph")}>
-                            Real time graph
-                          </MenuItem>
-                        </MenuList>
-                      </Menu>
-                      <Button onClick={onSave}>save</Button>
-                    </Box>
-                  </Flex>
-                </>
-              )}
-            </GridItem>
-            <GridItem area={"footer"}>
-              <Footer />
-            </GridItem>
-          </Grid>
-        </Container>
-      </Flex>
+                <Menu className="menu">
+                  <MenuButton
+                    margin={"50px"}
+                    colorScheme="blue"
+                    as={Button}
+                    rightIcon={<FiChevronDown />}
+                  >
+                    Add
+                  </MenuButton>
+
+                  <MenuList>
+                    <MenuItem onClick={() => onAdd("chartSeries")}>
+                      Historical chart
+                    </MenuItem>
+                    <MenuItem onClick={() => onAdd("realTimeGraph")}>
+                      Real time graph
+                    </MenuItem>
+                    <MenuItem onClick={() => onAdd("imageChart")}>
+                      Image
+                    </MenuItem>
+                  </MenuList>
+                </Menu>
+              </Box>
+            )}
+          </GridItem>
+          <GridItem area={"footer"}>
+            <Footer />
+          </GridItem>
+        </Grid>
+      </Container>
     </>
   );
 };

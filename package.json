@@ -10,9 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/react": "^2.8.2",
     "@fontsource-variable/dosis": "^5.0.20",
     "@fontsource-variable/montserrat": "^5.0.19",
     "@fontsource/zcool-xiaowei": "^5.0.12",
+    "@syncfusion/ej2": "^26.2.11",
     "@syncfusion/ej2-react-calendars": "^26.2.11",
     "@syncfusion/ej2-react-charts": "^26.2.10",
     "@syncfusion/ej2-react-circulargauge": "^26.2.10",

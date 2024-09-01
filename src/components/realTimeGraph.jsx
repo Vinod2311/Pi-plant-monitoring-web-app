@@ -1,25 +1,8 @@
-import * as React from "react";
-import * as ReactDOM from "react-dom";
 import {
-  CircularGaugeComponent,
-  AxesDirective,
-  AxisDirective,
-  PointersDirective,
-  PointerDirective,
-  Legend,
-  RangesDirective,
-  RangeDirective,
-} from "@syncfusion/ej2-react-circulargauge";
-import { LinearGaugeComponent } from "@syncfusion/ej2-react-lineargauge";
-import { CircularChart3DComponent, Inject } from "@syncfusion/ej2-react-charts";
-import {
-  Box,
   Button,
   Card,
   CardBody,
   Center,
-  Checkbox,
-  color,
   Editable,
   EditableInput,
   EditablePreview,
@@ -27,21 +10,32 @@ import {
   HStack,
   Menu,
   MenuButton,
-  MenuGroup,
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
   Spacer,
   Text,
-  VStack,
+  VStack
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { useEffect } from "react";
+import { Inject } from "@syncfusion/ej2-react-charts";
+import {
+  AxesDirective,
+  AxisDirective,
+  CircularGaugeComponent,
+  Legend,
+  PointerDirective,
+  PointersDirective,
+  RangeDirective,
+  RangesDirective,
+} from "@syncfusion/ej2-react-circulargauge";
+import { LinearGaugeComponent } from "@syncfusion/ej2-react-lineargauge";
 import { initializeApp } from "firebase/app";
-import { getDatabase, onValue, ref } from "firebase/database";
 import { getAuth } from "firebase/auth";
+import { getDatabase, onValue, ref } from "firebase/database";
+import * as React from "react";
+import { useEffect, useState } from "react";
 
-function RealTimeGraph() {
+function RealTimeGraph(props) {
   const [chartName, setChartName] = useState("");
   const [value, setValue] = useState({});
   const [data, setData] = useState([]);
@@ -63,18 +57,21 @@ function RealTimeGraph() {
           appId: "1:656085848146:web:d899dd1a52857536610f8b",
           measurementId: "G-XZ4ZSM1J4X",
         };
-        const appFirebase = initializeApp(firebaseConfig);
-        const databaseFirebase = getDatabase(appFirebase);
+        //create instance of firebase client
+        const appFirebase = await initializeApp(firebaseConfig);
+        const databaseFirebase = await getDatabase(appFirebase);
         const auth = await getAuth(appFirebase);
+        await auth.authStateReady()
         const userFirebase = await auth.currentUser;
         const dataRef = await ref(
           databaseFirebase,
           "users/" + userFirebase.uid + "/raspi 1/reading"
         );
+
+        //attach listener for any changes to real time data
         await onValue(dataRef, (snapshot) => {
           const firebaseSnapshot = snapshot.val();
           setData(firebaseSnapshot);
-          console.log("firebase data:" + firebaseSnapshot.timestamp);
           setIsLoading(false);
         });
       } catch (err) {
@@ -84,6 +81,7 @@ function RealTimeGraph() {
     setupFirebase();
   }, []);
 
+  //Create ranges and legend for circular and linear gauges 
   function handleDataTypeChange(
     dataType,
     min,
@@ -122,9 +120,9 @@ function RealTimeGraph() {
     setValue(newValue);
   }
 
+
   function handleChartTypeChange(value) {
     setChartType(value);
-    //setData([])
   };
 
   
@@ -138,7 +136,7 @@ function RealTimeGraph() {
               <Button
                 size="sm"
                 colorScheme="red"
-                onClick={() => null}
+                onClick={() => props.onDelete()}
               >
                 x
               </Button>
@@ -152,7 +150,6 @@ function RealTimeGraph() {
                 fontSize="2xl"
               >
                 <EditablePreview value={chartName} />
-                {/* Here is the custom input */}
                 <EditableInput
                   paddingStart={"20px"}
                   paddingEnd={"20px"}
@@ -214,14 +211,6 @@ function RealTimeGraph() {
                       }
                     >
                       Pressure
-                    </MenuItemOption>
-                    <MenuItemOption
-                      value="humidity(RH)"
-                      onClick={(e) =>
-                        handleDataTypeChange(e.currentTarget.value)
-                      }
-                    >
-                      Humidity
                     </MenuItemOption>
                     <MenuItemOption
                       value="soilMoisture(RH)"
@@ -311,15 +300,12 @@ function RealTimeGraph() {
                   switch (chartType) {
                     case "circularGauge":
                       return (
-                        <div id="container" style={{
-                          overflow: 'auto',
-                          width: "100%",
-                          height: "100%",
-                        }}>
+                        
                         <CircularGaugeComponent
-                          width='400px'
-                          height='350px'
-                          
+                          width="100%"
+                          height="100%"
+                          className = "charts"
+                          //id={props.id}
                           legendSettings={{
                             visible: true,
                           }}
@@ -364,15 +350,16 @@ function RealTimeGraph() {
                             </AxisDirective>
                           </AxesDirective>
                         </CircularGaugeComponent>
-                        </div>
+                        
                       );
 
                     case "linearGauge":
                       return (
                         <LinearGaugeComponent
                         width="100%"
-                height="100%"
-                          
+                        height="100%"
+                        //id={props.id}
+                          className = "charts"
                           legendSettings={{
                             visible: true,
                           }}
@@ -425,10 +412,10 @@ function RealTimeGraph() {
                       );
                   }
                 })()}
-              
+              {(chartType) ?
               <Text fontWeight="bold" fontSize={"large"}>
                 {dataType}
-              </Text>
+              </Text>:null}
               </>
               
             
@@ -447,4 +434,4 @@ function RealTimeGraph() {
   );
 };
 
-export default React.memo(RealTimeGraph)
+export default RealTimeGraph
