@@ -63,7 +63,7 @@ function ChartSeries(props) {
     //minimum: startDate,
     //maximum: endDate,
     //interval: 5,
-    labelFormat: "dd/MM hh:mm",
+    labelFormat: "dd/MM hh:mm a",
   };
   const legendSettings = { visible: true };
   

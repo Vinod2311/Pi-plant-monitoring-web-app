@@ -279,14 +279,7 @@ function RealTimeGraph(props) {
                     >
                       Circular Gauge
                     </MenuItemOption>
-                    <MenuItemOption
-                      value="Area"
-                      onClick={(e) =>
-                        handleChartTypeChange(e.currentTarget.value)
-                      }
-                    >
-                      Area
-                    </MenuItemOption>
+                    
                   </MenuOptionGroup>
                 </MenuList>
               </Menu>

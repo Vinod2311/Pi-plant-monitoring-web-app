@@ -66,10 +66,10 @@ const AboutPage = () => {
             </VStack>
           </GridItem>
           <GridItem area={"main2"}>
-            <Box marginBottom={'20px'} boxShadow={"2xl"}  rounded={"2xl"} overflow={"hidden"}>
+            <Box marginBottom={'20px'} border={"4px solid black"} boxShadow={"2xl"}  rounded={"2xl"} overflow={"hidden"}>
               <Image
                 boxSize="100%"
-                src="../../placeholder.png"
+                src="../../final-product.JPG"
                 alt="about page image"
               />
             </Box>
