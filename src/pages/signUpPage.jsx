@@ -1,41 +1,32 @@
-import { Button, Center, Container, FormControl, FormErrorMessage, Grid, GridItem, HStack, Input, InputGroup, InputRightElement, Show, Text, useToast, VStack } from "@chakra-ui/react"
-import Nav from "../components/navEntry"
-import Logo from "../components/logo"
-import Footer from "../components/footer"
-import React from "react";
-import * as Realm from "realm-web";
-import { useState } from "react"
+import { Button, Center, Container, FormControl, FormErrorMessage, Grid, GridItem, HStack, Input, Text, useToast, VStack } from "@chakra-ui/react";
 import { initializeApp } from "firebase/app";
-import { getAuth ,createUserWithEmailAndPassword} from "firebase/auth";
-import { Formik, Form, Field, useFormik,} from 'formik';
-import * as Yup from 'yup';
-import NavMain from "../components/navMain";
-import NavEntry from "../components/navEntry";
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { useFormik } from 'formik';
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import * as Realm from "realm-web";
+import * as Yup from 'yup';
+import Footer from "../components/footer";
+import Logo from "../components/logo";
+import NavEntry from "../components/navEntry";
 
 
 
 const SignUpPage = () => {
 
-  //const [mongoUser,setMongoUser] =useState(null)
-  //const [firebaseUser,setFirebaseUser] = useState(null)
-
+  
   const navigate = useNavigate()
-
   const handleRedirect = (pageURL) => {
     navigate(pageURL);
   };
 
-//  if (mongoUser && firebaseUser){
-//    handleRedirect('/dashboard')
-//  }
-
   
-
+  //Create instance of MongoDB
   const appMongo= new Realm.App({
     id:"application-1-dkzsnxq"
   })
 
+    //Public API config
   const firebaseConfig = {
     apiKey: "AIzaSyCHfnIcqTbOKuKtizPN4qUp6_AuwABENF8",
     authDomain: "raspberry-pi-plant-monitoring.firebaseapp.com",
@@ -47,32 +38,29 @@ const SignUpPage = () => {
     measurementId: "G-XZ4ZSM1J4X"
   };
 
+  //Create instance of FirebaseDB and uthorization client
   const appFirebase = initializeApp(firebaseConfig);
-
   const auth = getAuth(appFirebase);
+
+  //To create toast message on incorrect input
   const toast = useToast()
   const toastIdRef = React.useRef()
 
-  
-
+  //Register and login User to MongoDB
   async function mongoRegisterUser(email,password){
     await appMongo.emailPasswordAuth.registerUser({email,password})
     const credentials = Realm.Credentials.emailPassword(email,password)
     const user = await appMongo.logIn(credentials)
     return user
-    //console.log('result: ' + result)
   }
 
+  //Register and login user to Firebase
   async function signUp(email,password) {
-    
     createUserWithEmailAndPassword(auth,email,password)
     .then(async (userCredential) => {
       sessionStorage.setItem('userFirebase',JSON.stringify(userCredential.user))
-      //console.log('userFirebaes: ' +userFirebase)
       const userMongo = await mongoRegisterUser(email,password)
       sessionStorage.setItem('userMongo',JSON.stringify(userMongo))
-      
-      //console.log('userMongo: ' + userMongo)
       handleRedirect('/dashboard')
       
     })
@@ -86,6 +74,7 @@ const SignUpPage = () => {
 
   }
 
+  //Schema for first name, last name, email and password
   const SignupSchema = Yup.object().shape({
     fName: Yup.string()
       .min(2, 'Too Short!')
@@ -99,6 +88,8 @@ const SignUpPage = () => {
     password: Yup.string().required('Required')
   });
 
+
+  //Create instance of Formik - will handle signup form
   const formik = useFormik({
     initialValues: {fName:'',lName:'',email:'',password:''},
     onSubmit: (values) => {
@@ -107,29 +98,6 @@ const SignUpPage = () => {
     validationSchema: SignupSchema
   })
 
-  //const [error, setError] = useState(false)
-  //var [email,setEmail] =useState('')
-  //var [password,setPassword] =useState('')
-  //var [fName,setFName] =useState('')
-  //var [lName,setLName] =useState('')
-
-  
-  /*
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log(fName,lName,email,password)
-    signUp(email,password)
-  }*/
-
-
-  //validate
-  //onst validate = (value) => {
-  //  let console.error
- //   (if (!value))
-    
- // }
-
-  //add user
 
 
   return(
